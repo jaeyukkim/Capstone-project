@@ -50,7 +50,7 @@ void ALobbyCharacter::BeginPlay()
 }
 
 /*
- * 클라이언트의 경우 서버에서 팀 배치를 하기 전에 이미 InitPlayerInfo가 실행됨.
+ *  클라이언트의 경우 서버에서 팀 배치를 하기 전에 이미 InitPlayerInfo가 실행됨.
  *  따라서 클라이언트는 서버에서 팀 배치 이후 팀 정보가 다시 initialize되도록 설정함.
  */
 void ALobbyCharacter::InitPlayerInfo()
@@ -76,8 +76,8 @@ void ALobbyCharacter::InitPlayerInfo()
 		Info.PlayerTeamName = PS->GetTeamName();
 		Info.PlayerName = PS->GetPlayerName();
 		PlayerInformation = Info;
-		CoreGameState->AddPlayerInfo(Info);
 		InitLobbyWidget();
+		CoreGameState->AddPlayerInfo(Info);
 		
 	}
 	else
@@ -172,14 +172,14 @@ void ALobbyCharacter::ServerSetPlayerCharacterClass_Implementation(UClass* Selec
 	}
 }
 
-void ALobbyCharacter::ServerBroadcastCharacterSelectWidget_Implementation()
+/*void ALobbyCharacter::ServerBroadcastCharacterSelectWidget_Implementation()
 {
 	if(ACoreGameState* CoreGameState = Cast<ACoreGameState>(GetWorld()->GetGameState()))
 	{
 		CoreGameState->MulticastNewPlayerEntranced();
 
 	};
-}
+}*/
 
 
 void ALobbyCharacter::InitLobbyWidget()
@@ -188,7 +188,7 @@ void ALobbyCharacter::InitLobbyWidget()
 	{
 		if (ADefaultHUD* DefaultHUD = Cast<ADefaultHUD>(MyPlayerController->GetHUD()))
 		{
-			ServerBroadcastCharacterSelectWidget();
+			//ServerBroadcastCharacterSelectWidget();
 			DefaultHUD->InitCharacterSelectWidget(this);
 		}
 	}

@@ -124,23 +124,26 @@ protected:
 	void InitializeHealthBarWidget();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUpParticles() const;
-
+	UFUNCTION()
+	virtual void RegisterToGameMode();
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UParticleSystemComponent> LevelUpParticleComponent;
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "LevelUp")
 	TSubclassOf<UGameplayEffect> LevelUpReward;
 	
 	UFUNCTION()
 	void GetLevelUpReward();
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="HealthBar")
 	TObjectPtr<UWidgetComponent> HealthBarWidget;
+
+	
 	UPROPERTY(Replicated)
 	TArray<FItemInformation> OwnedItems;
-
+	
 	UFUNCTION()
 	void Stunned(const FGameplayTag CallbackTag, int32 NewCount);
-
 	
 	bool bAbilityIsGiven = false;
 	
@@ -205,14 +208,14 @@ private:
 	UPROPERTY()
 		TScriptInterface<IEnemyInterface> ThisActor;
 
-	
-
 	void AimTrace();
 
+
+	
 	FTimerHandle InitPlayerHealthBarHandle;
 	FTimerHandle InitReSpawnHandle;
 	FTimerHandle DeadTimerHandle;
-
+	FTimerHandle RegisterActorToGameStateHandle;
 
 	
 };

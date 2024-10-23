@@ -4,6 +4,7 @@
 #include "CoreGameState.h"
 #include "SeniorProject/Character/Turret/Turret.h"
 #include "GameplayTagContainer.h"
+#include "MyGameModeBase.h"
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "SeniorProject/GamePlayTagsBase.h"
@@ -48,7 +49,7 @@ void ACoreGameState::MulticastPlayerCharacterChanged_Implementation(APlayerState
 	}
 }
 
-
+/*
 void ACoreGameState::MulticastNewPlayerEntranced_Implementation()
 {
 	for(FPlayerInfo& PlayerInfo : PlayerInfos)
@@ -56,7 +57,7 @@ void ACoreGameState::MulticastNewPlayerEntranced_Implementation()
 		NewPlayerEntrancedDelegate.Broadcast(PlayerInfo);
 	}
 
-}
+}*/
 
 
 void ACoreGameState::ServerPlayerReady_Implementation(APlayerState* ReadyUser)
@@ -83,11 +84,33 @@ void ACoreGameState::MulticastPlayerReady_Implementation(APlayerState* InPS)
 	}
 }
 
+/* 새로운 플레이어가 접속하면 hp바 초기화, 리더보드가 초기화됨 */
+void ACoreGameState::ServerRegisterPlayerToGameMode_Implementation(APlayerStateBase* InPS, ECharacterClass CharacterClass)
+{
+	if(InPS != nullptr) return;
+	
+	FPlayerInfo Info;
+	Info.PC = InPS->GetPlayerController();
+	Info.PlayerName = InPS->GetPlayerName();
+	Info.PlayerTeamName = InPS->GetTeamName();
+	
+	AMyGameModeBase* MyGameModeBase = Cast<AMyGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (MyGameModeBase == nullptr) return;
+	UCharacterClassInfo* CharacterClassInfo = MyGameModeBase->CharacterClassInfo;
+	FCharacterClassDefaultInfo ClassInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	Info.CharacterImg = ClassInfo.CharacterImg;
+
+	PlayerInfos.AddUnique(Info);
+	NewPlayerEntrancedDelegate.Broadcast(Info);
+}
+
+
 TMap<TSubclassOf<AMyCharacter>, FGameplayTag> ACoreGameState::GetSelectedPlayerClass(FGameplayTag TeamName)
 {
 	TMap<TSubclassOf<AMyCharacter>, FGameplayTag> RedTeamSeletedPlayerClass;
 	TMap<TSubclassOf<AMyCharacter>, FGameplayTag> BlueTeamSeletedPlayerClass;
 	FGameplayTagsBase TagsBase = FGameplayTagsBase::Get();
+	
 	for (FPlayerInfo& PlayerInfo : PlayerInfos)
 	{
 		if(PlayerInfo.PlayerTeamName == TagsBase.GameRule_TeamName_RedTeam)
@@ -329,6 +352,14 @@ bool ACoreGameState::IsInhibitorDestroyed(FGameplayTag& TeamTag, FGameplayTag& L
 	}
 
 	return false;
+}
+
+void ACoreGameState::OnRep_PlayerInfos()
+{
+	for(FPlayerInfo& PlayerInfo : PlayerInfos)
+	{
+		NewPlayerEntrancedDelegate.Broadcast(PlayerInfo);
+	}
 }
 
 

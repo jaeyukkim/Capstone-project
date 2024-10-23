@@ -139,6 +139,7 @@ void AMyGameModeBase::Logout(AController* Exiting)
 {
 	
 	APlayerStateBase* PlayerStateBase = Exiting->GetPlayerState<APlayerStateBase>();
+	
 	if (CoreGameState && PlayerStateBase)
 	{
 		if (CoreGameState->RedTeam.Contains(PlayerStateBase))
@@ -154,16 +155,7 @@ void AMyGameModeBase::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 }
 
-void AMyGameModeBase::StartPlay()
-{
-	Super::StartPlay();
-}
 
-void AMyGameModeBase::StartMatch()
-{
-	Super::StartMatch();
-	
-}
 
 void AMyGameModeBase::ServerTravelToBattlefield()
 {
@@ -216,16 +208,21 @@ void AMyGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GetWorldTimerManager().SetTimer(InitializeGameTimer, this, &AMyGameModeBase::InitializeBattleMap, 1.f, true);
 	
-	if(CoreGameState == nullptr)
+	
+}
+
+void AMyGameModeBase::InitializeBattleMap()
+{
+	if(GameState == nullptr) return;
+	
+	CoreGameState = Cast<ACoreGameState>(UGameplayStatics::GetGameState(this));
+	if(CoreGameState)
 	{
-		CoreGameState = Cast<ACoreGameState>(UGameplayStatics::GetGameState(this));
+		// InitialSpawnTime 후 미니언 생성
+		GetWorld()->GetTimerManager().SetTimer(InitialSpawnTimerHandle, this, &AMyGameModeBase::SpawnMinion, InitialSpawnTime, false);
 	}
-	
-	// InitialSpawnTime 후 미니언 생성
-	GetWorld()->GetTimerManager().SetTimer(InitialSpawnTimerHandle, this, &AMyGameModeBase::SpawnMinion, InitialSpawnTime, false);
-	
-	
 }
 
 

@@ -42,7 +42,8 @@ struct FPlayerInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AMyCharacter> SelectedCharacter = nullptr;
-	
+
+
 	bool operator==(const FPlayerInfo& Other) const
 	{
 		return PC == Other.PC &&
@@ -61,6 +62,7 @@ class AMyPlayerController;
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerCharacterChangedDelegate, const FPlayerInfo&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerTeamInitializedDelegate, const FGameplayTag&);
 DECLARE_MULTICAST_DELEGATE(FPlayerReadyCompletedDelegate);
+
 
 /**
  * 
@@ -81,13 +83,16 @@ public:
 	FPlayerCharacterChangedDelegate NewPlayerEntrancedDelegate;
 	FPlayerCharacterChangedDelegate PlayerReadyCompletedDelegate;
 	FPlayerReadyCompletedDelegate AllPlayerReadyCompletedDelegate;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastNewPlayerEntranced();
+	
+	
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MulticastNewPlayerEntranced();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastPlayerCharacterChanged(APlayerState* InPS, UClass* SelectedCharacter, UTexture* CharacterImg);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastPlayerReady(APlayerState* InPS);
+	UFUNCTION(Server, Reliable)
+	void ServerRegisterPlayerToGameMode(APlayerStateBase* InPS, ECharacterClass CharacterClass);
 	UFUNCTION(Server, Reliable)
 	void ServerPlayerReady(APlayerState* ReadyUser);
 	UFUNCTION(BlueprintCallable)
@@ -97,19 +102,13 @@ public:
 	bool SetPlayerTeam(APlayerStateBase* PS);
 	
 	
-
-	
-	UFUNCTION(Server, Reliable)
-	void ServerUpdateTurretStates(const FGameplayTag& LineTag, const FGameplayTag& TurretLevelTag, const FGameplayTag& TeamTag, bool bIsDestroy);
-	
-	UFUNCTION(BlueprintCallable)
-	FGameplayTag GetValidTargetTurret(FGameplayTag& TeamTag, FGameplayTag& LineTag);
 	
 	UFUNCTION()
-	bool IsInhibitorDestroyed(FGameplayTag& TeamTag, FGameplayTag& LineTag) const;
+	void OnRep_PlayerInfos();
+
+
 	
-	
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing= OnRep_PlayerInfos)
 	TArray<FPlayerInfo> PlayerInfos;
 	UPROPERTY(Replicated)
 	TArray<TObjectPtr<APlayerState>> ReadyUsers;
@@ -119,7 +118,13 @@ public:
 	TArray<TObjectPtr<APlayerStateBase>> BlueTeam;
 
 
-	
+
+	UFUNCTION(Server, Reliable)
+	void ServerUpdateTurretStates(const FGameplayTag& LineTag, const FGameplayTag& TurretLevelTag, const FGameplayTag& TeamTag, bool bIsDestroy);
+	UFUNCTION(BlueprintCallable)
+	FGameplayTag GetValidTargetTurret(FGameplayTag& TeamTag, FGameplayTag& LineTag);
+	UFUNCTION()
+	bool IsInhibitorDestroyed(FGameplayTag& TeamTag, FGameplayTag& LineTag) const;
 	/*
 	 * 타워 상태를 저장하는 비트마스크
 	 * 초기화는 모두 파괴되어있는 상태

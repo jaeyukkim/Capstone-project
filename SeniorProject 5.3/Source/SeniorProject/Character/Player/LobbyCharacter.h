@@ -40,8 +40,8 @@ public:
 	void InitLobbyWidget();
 	void InitPlayerInfo();
 	void BindCallbacksToDependencies();
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void ServerBroadcastCharacterSelectWidget();
+	//UFUNCTION(Server, Reliable, BlueprintCallable)
+	//void ServerBroadcastCharacterSelectWidget();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerSetPlayerCharacterClass(UClass* SelectedCharacter, UTexture* CharacterImg);
 	UFUNCTION(Server, Reliable, BlueprintCallable)

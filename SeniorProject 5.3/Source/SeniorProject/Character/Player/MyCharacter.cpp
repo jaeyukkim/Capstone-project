@@ -157,7 +157,8 @@ void AMyCharacter::InitAbilityActorInfo()
 	}
 	
 	InitializeDefaultAttributes();
-	GetWorld()->GetTimerManager().SetTimer(InitPlayerHealthBarHandle, this, &AMyCharacter::InitializeHealthBarWidget, 5.f, false);
+	GetWorld()->GetTimerManager().SetTimer(RegisterActorToGameStateHandle, this, &AMyCharacter::RegisterToGameMode, 5.f, true);
+
 	GetMesh()->SetSimulatePhysics(false);
 }
 
@@ -234,6 +235,33 @@ void AMyCharacter::InitializeHealthBarWidget()
 	}
 	
 
+}
+
+
+/*
+ *  초기화가 완료되면 플레이어를 게임스테이트에 등록
+ */
+void AMyCharacter::RegisterToGameMode()
+{
+
+	if(ACoreGameState* CoreGameState = Cast<ACoreGameState>(UGameplayStatics::GetGameState(this)))
+	{
+		APlayerStateBase* PlayerStateBase = GetPlayerState<APlayerStateBase>();
+		if(PlayerStateBase != nullptr)
+		{
+			CoreGameState->ServerRegisterPlayerToGameMode(PlayerStateBase, CharacterClass);
+
+			/* 플레이어가 조금 늦게 들어와도 hp bar가 동기화되도록 새로운 플레이어가 들어올 때 마다 초기화 */
+			CoreGameState->NewPlayerEntrancedDelegate.AddLambda([this](const FPlayerInfo& Info)
+			{
+				GetWorld()->GetTimerManager().SetTimer(InitPlayerHealthBarHandle, this, &AMyCharacter::InitializeHealthBarWidget, 2.f, false);
+			});
+
+			// 비동기 초기화 완료
+			GetWorldTimerManager().ClearTimer(RegisterActorToGameStateHandle);
+
+		}
+	}
 }
 
 

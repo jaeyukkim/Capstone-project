@@ -29,8 +29,6 @@ public:
 	AMyGameModeBase();
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-	virtual void StartPlay() override;
-	virtual void StartMatch() override;
 	virtual void ServerTravelToBattlefield();
 	virtual void PostSeamlessTravel() override;
 	virtual void GenericPlayerInitialization(AController* C) override;
@@ -54,6 +52,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	// 미니언 스폰 타이머 설정 및 게임 초기화
+	UFUNCTION()
+	void InitializeBattleMap();
+	
 	//첫 미니언 스폰 타임
 	const float InitialSpawnTime = 90.f;
 
@@ -79,5 +81,7 @@ private:
 	
 	FTimerHandle InitialSpawnTimerHandle;
 	FTimerHandle RecurringSpawnTimerHandle;
+	FTimerHandle InitializeGameTimer;
+
 };
 

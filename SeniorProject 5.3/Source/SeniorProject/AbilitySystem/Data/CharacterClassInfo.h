@@ -32,6 +32,9 @@ struct FCharacterClassDefaultInfo
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture> CharacterImg = nullptr;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
@@ -54,6 +57,8 @@ struct FCharacterClassDefaultInfo
 	int32 GoldReward = 0;
 	
 };
+
+
 
 /**
  * 
